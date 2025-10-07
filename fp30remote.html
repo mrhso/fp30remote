@@ -313,7 +313,7 @@ const addressmap = {
                  write: null },
     0x01000200: {name: 'keyboard_mode',
                  length: 1,
-                 values: ["Single", "Split", "Dual", "Twin"],
+                 values: ["单一音色", "键盘分割", "音色叠加", "双钢琴模式"],
                  callback: toggleKeyboardMode},
     0x01000201: {name: 'keyboard_split_point',
                  length: 1,
@@ -341,7 +341,7 @@ const addressmap = {
                  max: 9,
                  offset: 0x40},
     0x01000206: {name: 'twin_mode',
-                 values: ["Pair", "Individual"],
+                 values: ["配对", "个体"],
                  length: 1 },
     0x01000207: {name: 'tone',
                  values: soundmap,
@@ -359,8 +359,8 @@ const addressmap = {
     0x01000218: {name: 'tuning',
                  length: 2,
                  offset: 256 - 4400,
-                 min: 420,
-                 max: 460,
+                 min: 415.3,
+                 max: 466.2,
                  fraction: 1},
     0x0100021a: {name: 'ambience',
                  min: 0,
@@ -1251,7 +1251,7 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <x-range class="kbdmode-dual" name="dual_tone2shift"></x-range>
         <div  class="kbdmode-dual" id="dual_tone2shift_text">0</div>
 
-        <div class="kbdmode-split">Split Tone</div>
+        <div class="kbdmode-split">左手音色</div>
         <x-select class="kbdmode-split" name="tone_split"></x-select>
         <div class="kbdmode-split"></div>
 
@@ -1267,7 +1267,7 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <x-range class="kbdmode-split" name="split_leftshift"></x-range>
         <div  class="kbdmode-split" id="split_leftshift_text">0</div>
 
-        <div class="kbdmode-twin">Twin</div>
+        <div class="kbdmode-twin">模式</div>
         <x-select class="kbdmode-twin" name="twin_mode"></x-select>
         <div class="kbdmode-twin"></div>
 
