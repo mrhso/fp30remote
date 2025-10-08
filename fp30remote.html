@@ -306,11 +306,11 @@ const addressmap = {
                  callback: setMetronomeNamed },
     0x0100010f: {name: 'metronome_status',
                  length: 1,
-                 write: 'metronome_enabled' },
+                 write: 'metronome_enabled' },*/
     0x01000110: {name: 'speaker_mode',
                  length: 1,
                  values: ["Always On", "Auto"],
-                 write: null },*/
+                 write: null },
     0x01000200: {name: 'keyboard_mode',
                  length: 1,
                  values: ["单一音色", "键盘分割", "音色叠加", "双钢琴模式"],
@@ -1275,10 +1275,10 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <x-select name="key_touch"></x-select>
         <div></div>
 
-        <!--<div>Speaker</div>-->
+        <div>Speaker</div>
         <!-- this is read-only - haven't figured the address to write. -->
-        <!--<x-select name="speaker_mode" for="speaker_mode"></x-select>
-        <div></div>-->
+        <x-select name="speaker_mode" for="speaker_mode"></x-select>
+        <div></div>-
 
         <div>主调音</div>
         <x-range name="tuning"></x-range>
