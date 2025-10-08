@@ -297,7 +297,7 @@ const addressmap = {
                  length: 1 },
     0x01000105: {name: 'playback_current_bar',
                  length: 2 },
-    /*0x01000108: {name: 'metronome_speed',
+    0x01000108: {name: 'metronome_speed',
                  length: 2,
                  min: 10,
                  max: 500,
@@ -306,7 +306,7 @@ const addressmap = {
                  callback: setMetronomeNamed },
     0x0100010f: {name: 'metronome_status',
                  length: 1,
-                 write: 'metronome_enabled' },*/
+                 write: 'metronome_enabled' },
     0x01000110: {name: 'speaker_mode',
                  length: 1,
                  values: ["Always On", "Auto"],
@@ -374,9 +374,15 @@ const addressmap = {
     0x0100021d: {name: 'key_touch',
                  values: ["固定", "非常轻", "轻", "普通", "重", "非常重"],
                  length: 1 },
-    /*0x0100021f: {name: 'metronome_beats',
+    0x0100021f: {name: 'metronome_beats',
                  length: 1,
-                 values: ["0 beats", "2 beats", "3 beats", "4 beats", "5 beats", "6 beats"] },*/
+                 values: ["2/2", "3/2", "2/4", "3/4", "4/4", "5/4", "6/4", "7/4", "3/8", "6/8", "8/8", "9/8", "12/8"] },
+    0x01000221: {name: 'metronome_volume',
+                 min: 1,
+                 max: 10,
+                 length: 1 },
+    0x01000223: {name: 'metronome_stressed',
+                 length: 1 },
     0x01000300: {name: 'dashboard_push_notification',
                  length: 2 },
     0x01000306: {name: 'dashboard_remote_control',
@@ -384,11 +390,11 @@ const addressmap = {
     0x01000307: {name: 'transpose_set',
                  offset: 0x40,
                  length: 1 },
-    /*0x01000309: {name: 'metronome_tempo',
+    0x01000309: {name: 'metronome_tempo',
                  length: 2,
                  callback: setMetronomeNamed},
     0x01000509: {name: 'metronome_enabled',
-                 length: 1 },*/
+                 length: 1 },
 };
 Object.freeze(addressmap);
 
@@ -1209,7 +1215,7 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <x-range name="volume"></x-range>
         <div id="volume_text">100</div>
 
-        <!--TODO<div>节拍器</div>
+        <div>节拍器</div>
         <span>
             <x-select name="metronome_beats"></x-select>
             <x-select name="metronome_named" for="metronome_speed"></x-tempi>
@@ -1218,7 +1224,7 @@ customElements.define('x-checkbox', class extends HTMLElement {
 
         <div>速度</div>
         <x-range name="metronome_speed"></x-range>
-        <div id="metronome_speed_text">0</div>-->
+        <div id="metronome_speed_text">0</div>
 
         <div>键盘移调</div>
         <x-range name="transpose"></x-range>
