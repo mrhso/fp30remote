@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <html lang="en">
     <head>
-        <title>FP-30 Remote Control</title>
+        <title>FP-18 Remote Control</title>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
@@ -201,13 +201,23 @@ const initexpected = 0b10101110;
 let debug = false;
 
 const tempi_named = {
-    40: "Largo",
-    60: "Larghetto",
-    66: "Adagio",
-    76: "Andante",
-    108: "Moderato",
-    120: "Allegro",
-    168: "Presto",
+    40: "Grave",
+    46: "Largo",
+    52: "Lento",
+    58: "Larghetto",
+    63: "Adagio",
+    66: "Adagietto",
+    72: "Andante",
+    80: "Andantino",
+    88: "Maestoso",
+    96: "Moderato",
+    108: "Allegretto",
+    120: "Allo. Moderato",
+    132: "Allegro",
+    144: "Allo. Assai",
+    152: "Allo. Vivace",
+    160: "Vivace",
+    184: "Presto",
     200: "Prestissimo"
 };
 Object.freeze(tempi_named);
@@ -215,52 +225,61 @@ Object.freeze(tempi_named);
 // Maps 3 byte parameter to tone name. Value is the actual numeric value (i.e.
 // 7bit-in-8bit), not the byte sequence on the MIDI connection.
 const soundmap = {
-    "Piano": {
-        0x000000: "Grand Piano 1",
-        0x000001: "Grand Piano 2",
-        0x000002: "Grand Piano 3",
-        0x000003: "Ragtime Piano",
-        0x000004: "Harpsichord 1",
-        0x000005: "Harpsichord 2"
+    "钢琴": {
+        0x000000: "钢琴 1",
+        0x000001: "钢琴 2",
+        0x000002: "钢琴 3",
+        0x000003: "钢琴 4",
+        0x000004: "拉格泰姆钢琴",
+        0x000005: "羽管键琴1",
+        0x000006: "羽管键琴2"
     },
-    "E-Piano": {
-        0x004000: "E-Piano 1",
-        0x004001: "E-Piano 2",
-        0x004002: "E-Piano 3",
-        0x004003: "Clavinova",
-        0x004004: "Vibraphone",
-        0x004005: "Celesta",
-        0x004006: "Synth Bell"
+    "电钢琴": {
+        0x004000: "电钢琴 1",
+        0x004001: "电钢琴 2",
+        0x004002: "电钢琴 3",
+        0x004003: "Clav.",
+        0x004004: "电颤琴",
+        0x004005: "钢片琴",
+        0x004006: "合成钟"
     },
-    "Other": {
-        0x008000: "Strings 1",
-        0x008001: "Strings 2",
-        0x008002: "Harp",
-        0x008003: "Jazz Organ 1",
-        0x008004: "Jazz Organ 2",
-        0x008005: "Church Organ 1",
-        0x008006: "Church Organ 2",
-        0x008007: "Accordion",
-        0x008008: "Choir 1",
-        0x008009: "Jazz Scat",
-        0x00800a: "Choir 2",
-        0x00800b: "Choir 3",
-        0x00800c: "Synth Pad",
-        0x00800d: "Nylon string Guitar",
-        0x00800e: "Steel string Guitar",
+    "其他": {
+        0x008000: "弦乐 1",
+        0x008001: "弦乐 2",
+        0x008002: "竖琴",
+        0x008003: "爵士乐风琴 1",
+        0x008004: "爵士乐风琴 2",
+        0x008005: "教堂风琴 1",
+        0x008006: "教堂风琴 2",
+        0x008007: "手风琴",
+        0x008008: "合唱组 1",
+        0x008009: "爵士乐拟声",
+        0x00800a: "合唱组 2",
+        0x00800b: "合唱组 3",
+        0x00800c: "合成背景",
+        0x00800d: "尼龙弦吉他",
+        0x00800e: "钢弦吉他",
         0x00800f: "Decay Strings",
         0x008010: "Decay Choir",
         0x008011: "Decay Choir Pad",
-        0x008012: "Acoustic Bass",
-        0x008013: "Acoustic Bass + Cymbal",
-        0x008014: "Fingered Bass",
+        0x008012: "原声贝斯",
+        0x008013: "贝斯+镲",
+        0x008014: "手弹贝斯",
         0x008015: "Thum Voice"
+    },
+    "FP-18": {
+        0x00c000: "古筝",
+        0x00c001: "二胡",
+        0x00c002: "笛子",
+        0x00c003: "琵琶",
+        0x00c004: "扬琴",
+        0x00c005: "唢呐"
     }
 };
 Object.freeze(soundmap);
 
 /*
- * Roland FP-30 Dashboard Address Map.
+ * Roland FP-18 Dashboard Address Map.
  *
  * For SysEx messages the most significant bit has to be 0, so all data bytes
  * represent 7 bit. To simplify things all addresses are keeping the 8th bit,
@@ -281,7 +300,7 @@ const addressmap = {
     0x01000108: {name: 'metronome_speed',
                  length: 2,
                  min: 10,
-                 max: 240,
+                 max: 500,
                  write: 'metronome_tempo',
                  values: tempi_named,
                  callback: setMetronomeNamed },
@@ -294,7 +313,7 @@ const addressmap = {
                  write: null },
     0x01000200: {name: 'keyboard_mode',
                  length: 1,
-                 values: ["Single", "Split", "Dual", "Twin"],
+                 values: ["单一音色", "键盘分割", "音色叠加", "双钢琴模式"],
                  callback: toggleKeyboardMode},
     0x01000201: {name: 'keyboard_split_point',
                  length: 1,
@@ -308,8 +327,8 @@ const addressmap = {
                  offset: 0x40 },
     0x01000203: {name: 'split_balance',
                  length: 1,
-                 min: -9,
-                 max: 9,
+                 min: -8,
+                 max: 8,
                  offset: 0x40 },
     0x01000204: {name: 'dual_tone2shift',
                  length: 1,
@@ -318,11 +337,11 @@ const addressmap = {
                  offset: 0x40},
     0x01000205: {name: 'dual_balance',
                  length: 1,
-                 min: -9,
-                 max: 9,
+                 min: -8,
+                 max: 8,
                  offset: 0x40},
     0x01000206: {name: 'twin_mode',
-                 values: ["Pair", "Individual"],
+                 values: ["配对", "个体"],
                  length: 1 },
     0x01000207: {name: 'tone',
                  values: soundmap,
@@ -340,24 +359,30 @@ const addressmap = {
     0x01000218: {name: 'tuning',
                  length: 2,
                  offset: 256 - 4400,
-                 min: 420,
-                 max: 460,
+                 min: 415.3,
+                 max: 466.2,
                  fraction: 1},
     0x0100021a: {name: 'ambience',
                  min: 0,
-                 max: 4,
+                 max: 10,
                  length: 1 },
     0x0100021c: {name: 'brilliance',
                  offset: 0x40,
-                 min: -1,
-                 max: 1,
+                 min: -10,
+                 max: 10,
                  length: 1 },
     0x0100021d: {name: 'key_touch',
-                 values: ["Fix", "Superlight", "Light", "Medium", "Heavy", "Superheavy"],
+                 values: ["固定", "非常轻", "轻", "普通", "重", "非常重"],
                  length: 1 },
     0x0100021f: {name: 'metronome_beats',
                  length: 1,
-                 values: ["0 beats", "2 beats", "3 beats", "4 beats", "5 beats", "6 beats"] },
+                 values: ["2/2", "3/2", "2/4", "3/4", "4/4", "5/4", "6/4", "7/4", "3/8", "6/8", "8/8", "9/8", "12/8"] },
+    0x01000221: {name: 'metronome_volume',
+                 min: 0,
+                 max: 10,
+                 length: 1 },
+    0x01000223: {name: 'metronome_stressed',
+                 length: 1 },
     0x01000300: {name: 'dashboard_push_notification',
                  length: 2 },
     0x01000306: {name: 'dashboard_remote_control',
@@ -555,9 +580,9 @@ function processMidiMessage(data) {
     log("processMidiMessage", arrayToHex(data));
     if (data.length == 15
         && arrayIsEqual(data, [0xf0, 0x7e, 0x10, 0x06, 0x02])) {
-        // Expect identity response for FP-30.
-        const expected = [0xf0, 0x7e, 0x10, 0x06, 0x02, 0x41, 0x42, 0x00, 0x00,
-                          0x20, 0x00, 0x01, 0x00, 0x00, 0xf7];
+        // Expect identity response for FP-18.
+        const expected = [0xf0, 0x7e, 0x10, 0x06, 0x02, 0x41, 0x19, 0x03, 0x00,
+                          0x00, 0x22, 0x01, 0x00, 0x00, 0xf7];
 
         if (data[5] != 0x41) {
             alert("Not a Roland instrument. Aborting.");
@@ -615,16 +640,23 @@ function initDevices(midi) {
     // MIDI devices that send you data.
     let inputs = midi.inputs.values();
     for (let input = inputs.next(); input && !input.done; input = inputs.next()) {
-        // Assumes MIDI names to be unique. The OS should ensure that.
-        midiDevices[input.value.name] = {};
-        midiDevices[input.value.name].input = input.value;
+        if (input.value.name === "BLE-MIDI Input") {
+            midiDevices["BLE-MIDI"] = {};
+            midiDevices["BLE-MIDI"].input = input.value;
+        } else if (input.value.name !== "BLE-MIDI Output") {
+            // Assumes MIDI names to be unique. The OS should ensure that.
+            midiDevices[input.value.name] = {};
+            midiDevices[input.value.name].input = input.value;
+        }
         log("add MIDI input:", input.value.name);
     }
 
     // MIDI devices that you send data to.
     let outputs = midi.outputs.values();
     for (let output = outputs.next(); output && !output.done; output = outputs.next()) {
-        if (midiDevices[output.value.name]) {
+        if (output.value.name === "BLE-MIDI Output") {
+            midiDevices["BLE-MIDI"].output = output.value;
+        } else if (output.value.name !== "BLE-MIDI Input" && midiDevices[output.value.name]) {
             midiDevices[output.value.name].output = output.value;
         }
         log("add MIDI output:", output.value.name);
@@ -1159,7 +1191,7 @@ customElements.define('x-checkbox', class extends HTMLElement {
 
 </head>
 <body onload="setup();">
-    <h2>FP-30 Remote</h2>
+    <h2>FP-18 Remote</h2>
     <div style="padding-bottom:20px;">
     <span id='tab-control' class="tabbutton" onclick="toggleGrid('control')">Control</span>
     <span id='tab-extra' class="tabbutton" onclick="toggleGrid('extra')">Extra</span>
@@ -1176,33 +1208,41 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <div></div>
         <div></div>
 
-        <div>Sound</div>
+        <div>音色</div>
         <x-select name="tone"></x-select>
         <div></div>
-        <div>Volume</div>
+        <div>钢琴音量</div>
         <x-range name="volume"></x-range>
         <div id="volume_text">100</div>
 
-        <div>Metronome</div>
+        <div>节拍器</div>
         <span>
             <x-select name="metronome_beats"></x-select>
             <x-select name="metronome_named" for="metronome_speed"></x-tempi>
         </span>
         <x-checkbox name="metronome_status" value="0"></x-checkbox>
 
-        <div>Tempo</div>
+        <div>强拍</div>
+        <span></span>
+        <x-checkbox name="metronome_stressed" value="this.checked ? 1 : 0"></x-checkbox>
+
+        <div>速度</div>
         <x-range name="metronome_speed"></x-range>
         <div id="metronome_speed_text">0</div>
 
-        <div>Transpose</div>
+        <div>音量</div>
+        <x-range name="metronome_volume"></x-range>
+        <div id="metronome_volume_text">5</div>
+
+        <div>键盘移调</div>
         <x-range name="transpose"></x-range>
         <div id="transpose_text">0</div>
 
-        <div>Brilliance</div>
+        <div>音色明亮度</div>
         <x-range name="brilliance"></x-range>
         <div id="brilliance_text">0</div>
 
-        <div>Ambience</div>
+        <div>声场的深度</div>
         <x-range name="ambience"></x-range>
         <div id="ambience_text">0</div>
 
@@ -1213,39 +1253,39 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <x-select name="keyboard_mode"></x-select>
         <div></div>
 
-        <div class="kbdmode-dual">Dual Tone</div>
+        <div class="kbdmode-dual">音色2</div>
         <x-select class="kbdmode-dual" name="tone_dual"></x-select>
         <div class="kbdmode-dual"></div>
 
-        <div class="kbdmode-dual">Balance</div>
+        <div class="kbdmode-dual">音量平衡</div>
         <x-range class="kbdmode-dual" name="dual_balance"></x-range>
         <div  class="kbdmode-dual" id="dual_balance_text">0</div>
 
-        <div class="kbdmode-dual">Tone2 Shift</div>
+        <div class="kbdmode-dual">音色2八度移位</div>
         <x-range class="kbdmode-dual" name="dual_tone2shift"></x-range>
         <div  class="kbdmode-dual" id="dual_tone2shift_text">0</div>
 
-        <div class="kbdmode-split">Split Tone</div>
+        <div class="kbdmode-split">左手音色</div>
         <x-select class="kbdmode-split" name="tone_split"></x-select>
         <div class="kbdmode-split"></div>
 
-        <div class="kbdmode-split">Split Point</div>
+        <div class="kbdmode-split">分键点</div>
         <x-range class="kbdmode-split" name="keyboard_split_point"></x-range>
         <div  class="kbdmode-split" id="keyboard_split_point_text">B1</div>
 
-        <div class="kbdmode-split">Balance</div>
+        <div class="kbdmode-split">音量平衡</div>
         <x-range class="kbdmode-split" name="split_balance"></x-range>
         <div  class="kbdmode-split" id="split_balance_text">0</div>
 
-        <div class="kbdmode-split">Left Shift</div>
+        <div class="kbdmode-split">左手八度移位</div>
         <x-range class="kbdmode-split" name="split_leftshift"></x-range>
         <div  class="kbdmode-split" id="split_leftshift_text">0</div>
 
-        <div class="kbdmode-twin">Twin</div>
+        <div class="kbdmode-twin">模式</div>
         <x-select class="kbdmode-twin" name="twin_mode"></x-select>
         <div class="kbdmode-twin"></div>
 
-        <div>Key&nbsp;Touch</div>
+        <div>触键</div>
         <x-select name="key_touch"></x-select>
         <div></div>
 
@@ -1254,7 +1294,7 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <x-select name="speaker_mode" for="speaker_mode"></x-select>
         <div></div>
 
-        <div>Tuning</div>
+        <div>主调音</div>
         <x-range name="tuning"></x-range>
         <div id="tuning_text">440.0</div>
     </div>
@@ -1263,8 +1303,8 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <div></div>
         <div>
             <p>
-                The FP-30 Remote Control uses WebMIDI / Web Bluetooth to
-                connect to a Roland FP-30 instrument and control its dashboard
+                The FP-18 Remote Control uses WebMIDI / Web Bluetooth to
+                connect to a Roland FP-18 instrument and control its dashboard
                 settings.
             </p>
             <p>
@@ -1285,7 +1325,7 @@ customElements.define('x-checkbox', class extends HTMLElement {
             </p>
             <p>
                 This is considered experimental.
-                <em>It has only been tested with the FP-30.</em>
+                <em>It has only been tested with the FP-18.</em>
                 <b>Use at your own risk.</b>
             </p>
         </div>
