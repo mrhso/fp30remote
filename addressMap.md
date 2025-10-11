@@ -46,7 +46,7 @@
 |ambienceType|01000224|1|
 |metronomeType|01000225|1|
 |rhythmPatternNumber|01000226|3|
-|applicationMode|01000300|1|
+|applicationMode|01000300|2|
 |scorePageTurn|01000302|1|
 |arrangerPedalFunction|01000303|2|
 |arrangerBalance|01000305|1|
@@ -69,7 +69,7 @@
 |sequencerRecStandby|0100031B|1|
 |movingKeysSwitchForApp|0100031C|1|
 |playbackReadyRequest|0100031D|1|
-|soundEffect|01000400|1|
+|soundEffect|01000400|2|
 |soundEffectStopAll|01000402|1|
 |sequencerREW|01000500|1|
 |sequencerFF|01000501|1|
@@ -90,6 +90,6 @@
 |uptime|01000700|8|
 |addressMapVersion|01000800|1|
 |aliveCheck|01000801|1|
-|dateTime|01000900|1|
+|dateTime|01000900|7|
 |userSongListUpdated|01000A00|1|
 |loopEndArrived|01000A01|1|
