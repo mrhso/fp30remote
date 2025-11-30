@@ -1237,6 +1237,22 @@ customElements.define('x-checkbox', class extends HTMLElement {
         <div>键盘移调</div>
         <x-range name="transpose"></x-range>
         <div id="transpose_text">0</div>
+        <div></div>
+        <div>
+            <button onclick="setValueByName('transpose', -6)">-6</button>
+            <button onclick="setValueByName('transpose', -5)">-5</button>
+            <button onclick="setValueByName('transpose', -4)">-4</button>
+            <button onclick="setValueByName('transpose', -3)">-3</button>
+            <button onclick="setValueByName('transpose', -2)">-2</button>
+            <button onclick="setValueByName('transpose', -1)">-1</button>
+            <button onclick="setValueByName('transpose', 0)">0</button>
+            <button onclick="setValueByName('transpose', 1)">1</button>
+            <button onclick="setValueByName('transpose', 2)">2</button>
+            <button onclick="setValueByName('transpose', 3)">3</button>
+            <button onclick="setValueByName('transpose', 4)">4</button>
+            <button onclick="setValueByName('transpose', 5)">5</button>
+        </div>
+        <div></div>
 
         <div>音色明亮度</div>
         <x-range name="brilliance"></x-range>
